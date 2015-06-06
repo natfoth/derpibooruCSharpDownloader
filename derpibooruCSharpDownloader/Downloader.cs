@@ -443,13 +443,7 @@ namespace derpibooruCSharpDownloader
                     {
                         downloaded2 = downloaded;
                     }
-                    float progress = (toDownload - downloaded2);
-                    Program.Form.Invoke(new Action(() =>
-                    {
-                        Program.Form.progressBar.Value = (int)progress;
-                        Program.Form.currentProgressLabel.Text = progress.ToString("N0");
-                        Program.Form.progressPerctLabel.Text = ((progress / toDownload) * 100).ToString("N0");
-                    }));
+                    UpdateProgress(toDownload, downloaded2);
                 }
                 catch (Exception)
                 {

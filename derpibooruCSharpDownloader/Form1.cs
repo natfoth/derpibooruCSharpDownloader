@@ -40,7 +40,10 @@ namespace derpibooruCSharpDownloader
 
         public void EnableSearchButton()
         {
-            searchButton.Enabled = true;
+            this.Invoke(new Action(() =>
+            {
+                searchButton.Enabled = true;
+            }));
         }
 
 
