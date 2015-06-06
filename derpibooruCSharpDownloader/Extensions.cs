@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using derpibooruCSharpDownloader.ThreadedDownloader;
 using Newtonsoft.Json;
 
 namespace derpibooruCSharpDownloader
@@ -77,6 +78,84 @@ namespace derpibooruCSharpDownloader
                 list[k] = list[n];
                 list[n] = value;
             }
+        }
+
+        public static async Task ProcessWork<TQueue, TObject>(this IEnumerable<TObject> work, Func<TObject, Task> workFunc, Func<int, Task> onTick)
+            where TQueue : class, IFQueue, new()
+        {
+            var cts = new CancellationTokenSource();
+            var tQueue = FQueueCollection.Create<TQueue>(cts.Token);
+            var i = work.Count();
+            Func<TObject, Task> onWork = (o) =>
+            {
+                tQueue.AddWork(new FQueueObject(async (ct) =>
+                {
+                    await workFunc(o).ConfigureAwait(false);
+                    i--;
+                    Console.WriteLine(i);
+                }, cts.Token), false);
+                return Task.FromResult<object>(null);
+            };
+
+
+            await ProcessWork(work, onWork, ia =>
+            {
+                tQueue.StartWorking();
+                return onTick(ia);
+            });
+        }
+
+        public static async Task ProcessWork<TObject>(this IEnumerable<TObject> work, Func<TObject, Task> workFunc, Func<int, Task> onTick)
+        {
+            var latch = new CountdownEvent(work.Count());
+            var i = work.Count();
+
+            Func<Task> working = async () =>
+            {
+                foreach (var o in work)
+                {
+                    await workFunc(o).ConfigureAwait(false);
+                    latch.Signal();
+                    await Task.Delay(1).ConfigureAwait(false);
+                }
+            };
+
+            Func<Task> ticker = async () =>
+            {
+                while (latch.CurrentCount != 0)
+                {
+                    await onTick(latch.CurrentCount);
+                    await Task.Delay(100).ConfigureAwait(false);
+                }
+            };
+
+            await Task.WhenAll(working(), ticker());
+        }
+
+        public static async Task ProcessWork<TObject>(this IEnumerable<TObject> work, Func<TObject, CountdownEvent, Task> workFunc, Func<int, Task> onTick, int count)
+        {
+            var latch = new CountdownEvent(count);
+            var i = work.Count();
+
+            Func<Task> working = async () =>
+            {
+                foreach (var o in work)
+                {
+                    await workFunc(o, latch).ConfigureAwait(false);
+                    await Task.Delay(1).ConfigureAwait(false);
+                }
+            };
+
+            Func<Task> ticker = async () =>
+            {
+                while (latch.CurrentCount != 0)
+                {
+                    await onTick(latch.CurrentCount);
+                    await Task.Delay(100).ConfigureAwait(false);
+                }
+            };
+
+            await Task.WhenAll(working(), ticker());
         }
     }
 }

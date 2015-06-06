@@ -162,7 +162,7 @@ namespace derpibooruCSharpDownloader
             
             var cQueue = new ConcurrentQueue<Search>();
 
-            await ProcessWork<FQueues.FQueueSearch, Uri>(Pages, async (page) =>
+            await Pages.ProcessWork<FQueues.FQueueSearch, Uri>(async (page) =>
             {
                 SearchContainer container = null;
                 int tries = 0;
@@ -185,20 +185,7 @@ namespace derpibooruCSharpDownloader
                 }
             }, i =>
             {
-                try
-                {
-                    var currentCount = numberOfPages - i;
-                    Program.Form.Invoke(new Action(() =>
-                    {
-                        Program.Form.progressBar.Value = currentCount;
-                        Program.Form.currentProgressLabel.Text = currentCount.ToString("N0");
-                        Program.Form.progressPerctLabel.Text = ((currentCount / numberOfPages) * 100).ToString("N0");
-                    }));
-                }
-                catch (Exception)
-                {
-                    Program.Form.progressBar.Value = Program.Form.progressBar.Maximum;
-                }
+                UpdateProgress(numberOfPages, i);
                 return Task.FromResult<object>(null);
             });
             
@@ -217,8 +204,7 @@ namespace derpibooruCSharpDownloader
                 var cached = GetCachedString(uriHash);
                 if (cached != null)
                 {
-                    return null;
-                    //return JsonConvert.DeserializeObject<SearchContainer>(cached);
+                    return JsonConvert.DeserializeObject<SearchContainer>(cached);
                 }
                 using (var hClient = new HttpClient())
                 {
@@ -263,11 +249,6 @@ namespace derpibooruCSharpDownloader
                 SearchList = SearchList.Where(search => search.score >= Configuration.Instance.MinRating).ToList();
 
             SortList();
-            
-            await DownloadPictures();
-            Debugger.Break();
-
-
         }
 
         private static void SaveCache(string fileName, string text)
@@ -324,63 +305,64 @@ namespace derpibooruCSharpDownloader
             var failedItems = new List<Search>();
 
             var aLock = new object();
-                await ProcessWork(searchItems, async (search, latch) =>
-                    {
-
-                    using (var db = new DerpyDbContext())
-                        {
-                            db.Configuration.AutoDetectChangesEnabled = false;
-                            db.Configuration.ValidateOnSaveEnabled = false;
-
-                            foreach (var item in search)
-                            {
-                                try
-                                {
-                                    var tries = 0;
-                                    while (tries <= 10)
-                                    {
-                                        if (await CreateImageIfNeeded(derpyImages, item, db))
-                                            break;
-                                        tries++;
-                                        await Task.Delay(10);
-                                    }
-                                    if (tries >= 10)
-                                        throw new Exception();
-                                }
-                                catch (Exception ex)
-                                {
-                                    failedItems.Add(item);
-                                }
-                                latch.Signal();
-                            }
-                            try
-                            {
-                                await db.SaveChangesAsync().ConfigureAwait(false);
-                            }
-                            catch (Exception)
-                            {
-                                failedItems.AddRange(search);
-                            }
-                        }
+                await searchItems.ProcessWork(async (search, latch) => {
+                        await BatchProcessDb(search, derpyImages, failedItems, latch);
                     }, i =>
+                    {
+                        UpdateProgress(total, i);
+                        return Task.FromResult<object>(null);
+                    }, searchList.Count);
+            
+        }
+
+        private static void UpdateProgress(int total, int i)
+        {
+            try
+            {
+                var currentCount = total - i;
+                Program.Form.Invoke(new Action(() =>
+                {
+                    Program.Form.progressBar.Value = currentCount;
+                    Program.Form.currentProgressLabel.Text = currentCount.ToString("N0");
+                    Program.Form.progressPerctLabel.Text = ((currentCount/total)*100).ToString("N0");
+                }));
+            }
+            catch (Exception)
+            {
+                Program.Form.progressBar.Value = Program.Form.progressBar.Maximum;
+            }
+        }
+
+        private static async Task BatchProcessDb(List<Search> search, Dictionary<long, DerpyImage> derpyImages, List<Search> failedItems, CountdownEvent latch)
+        {
+            using (var db = new DerpyDbContext())
+            {
+                db.Configuration.AutoDetectChangesEnabled = false;
+                db.Configuration.ValidateOnSaveEnabled = false;
+
+                foreach (var item in search)
                 {
                     try
                     {
-                        var currentCount = total - i;
-                        Program.Form.Invoke(new Action(() =>
+                        var tries = 0;
+                        while (tries <= 10)
                         {
-                            Program.Form.progressBar.Value = currentCount;
-                            Program.Form.currentProgressLabel.Text = currentCount.ToString("N0");
-                            Program.Form.progressPerctLabel.Text = ((currentCount / total) * 100).ToString("N0");
-                        }));
+                            if (await CreateImageIfNeeded(derpyImages, item, db))
+                                break;
+                            tries++;
+                            await Task.Delay(10);
+                        }
+                        if (tries >= 10)
+                            throw new Exception();
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        Program.Form.progressBar.Value = Program.Form.progressBar.Maximum;
+                        failedItems.Add(item);
                     }
-                    return Task.FromResult<object>(null);
-                }, searchList.Count);
-            
+                    latch.Signal();
+                }
+                await db.SaveChangesAsync().ConfigureAwait(false);
+            }
         }
 
         private static async Task<bool> CreateImageIfNeeded(Dictionary<long, DerpyImage> derpyImages, Search search, DerpyDbContext db)
@@ -408,84 +390,6 @@ namespace derpibooruCSharpDownloader
 
             }
             return true;
-        }
-
-        private static async Task ProcessWork<TQueue, TObject>(IEnumerable<TObject> work, Func<TObject, Task> workFunc, Func<int, Task> onTick)
-            where TQueue : class, IFQueue, new()
-        {
-            var cts = new CancellationTokenSource();
-            var tQueue = FQueueCollection.Create<TQueue>(cts.Token);
-            var i = work.Count();
-            Func<TObject, Task> onWork = (o) =>
-            {
-                tQueue.AddWork(new FQueueObject(async (ct) =>
-                {
-                    await workFunc(o).ConfigureAwait(false);
-                    i--;
-                    Console.WriteLine(i);
-                }, cts.Token), false);
-                return Task.FromResult<object>(null);
-            };
-
-
-            await ProcessWork(work, onWork, ia =>
-            {
-                tQueue.StartWorking();
-                return onTick(ia);
-            });
-        }
-
-        private static async Task ProcessWork<TObject>(IEnumerable<TObject> work, Func<TObject, Task> workFunc, Func<int, Task> onTick)
-        {
-            var latch = new CountdownEvent(work.Count());
-            var i = work.Count();
-
-            Func<Task> working = async () =>
-            {
-                foreach (var o in work)
-                {
-                    await workFunc(o).ConfigureAwait(false);
-                    latch.Signal();
-                    await Task.Delay(1).ConfigureAwait(false);
-                }
-            };
-
-            Func<Task> ticker = async () =>
-            {
-                while (latch.CurrentCount != 0)
-                {
-                    await onTick(latch.CurrentCount);
-                    await Task.Delay(100).ConfigureAwait(false);
-                }
-            };
-
-            await Task.WhenAll(working(), ticker());
-        }
-
-        private static async Task ProcessWork<TObject>(IEnumerable<TObject> work, Func<TObject, CountdownEvent, Task> workFunc, Func<int, Task> onTick, int count)
-        {
-            var latch = new CountdownEvent(count);
-            var i = work.Count();
-
-            Func<Task> working = async () =>
-            {
-                foreach (var o in work)
-                {
-                    await workFunc(o, latch).ConfigureAwait(false);
-                    await Task.Delay(1).ConfigureAwait(false);
-                }
-            };
-
-            Func<Task> ticker = async () =>
-            {
-                while (latch.CurrentCount != 0)
-                {
-                    await onTick(latch.CurrentCount);
-                    await Task.Delay(100).ConfigureAwait(false);
-                }
-            };
-
-            await Task.WhenAll(working(), ticker());
         }
 
 

@@ -46,9 +46,9 @@ namespace derpibooruCSharpDownloader
 
         private async void searchButton_Click(object sender, EventArgs e)
         {
-            //await _downloader.Search(searchTextBox.Text);
             searchButton.Enabled = false;
-            await _downloader.DownloadPictures();
+            await _downloader.Search(searchTextBox.Text);
+            //await _downloader.DownloadPictures();
         }
 
         private void folderLocationTextBox_TextChanged(object sender, EventArgs e)
