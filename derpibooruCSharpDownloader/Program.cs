@@ -17,6 +17,8 @@ namespace derpibooruCSharpDownloader
     public static class Program
     {
         public static Downloader Downloader { get; set; } = new Downloader();
+
+        public static OfflineBrowser OfflineBrowser { get; set; } = new OfflineBrowser();
         public static Form1 Form { get; set; }
         /// <summary>
         /// The main entry point for the application.
@@ -31,7 +33,7 @@ namespace derpibooruCSharpDownloader
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Form = new Form1(Downloader);
+            Form = new Form1(Downloader, OfflineBrowser);
             Application.Run(Form);
         }
 

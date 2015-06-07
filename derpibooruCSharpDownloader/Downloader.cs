@@ -512,6 +512,13 @@ namespace derpibooruCSharpDownloader
             return savePath;
         }
 
+
+
+        
+
+
+
+
         /// <summary>
         ///     Downloads a file from a specified Internet address.
         /// </summary>

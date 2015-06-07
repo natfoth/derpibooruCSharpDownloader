@@ -13,10 +13,12 @@ namespace derpibooruCSharpDownloader
 {
     public partial class Form1 : Form
     {
-        private Downloader _downloader;
-        public Form1(Downloader newDownloader)
+        private readonly Downloader _downloader;
+        private readonly OfflineBrowser _offlineBrowser;
+        public Form1(Downloader newDownloader, OfflineBrowser offlineBrowser)
         {
             _downloader = newDownloader;
+            _offlineBrowser = offlineBrowser;
 
             InitializeComponent();
 
@@ -153,6 +155,54 @@ namespace derpibooruCSharpDownloader
 
             var directory = new System.IO.DirectoryInfo(documentsFolder);
             directory.Empty();
+        }
+
+        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (tabControl1.SelectedIndex == 1)
+                _offlineBrowser.TabLoaded();
+            
+
+        }
+
+        private void nextPictureButton_Click(object sender, EventArgs e)
+        {
+            _offlineBrowser.NextPicture();
+        }
+
+        private void previousPictureButton_Click(object sender, EventArgs e)
+        {
+            _offlineBrowser.PreviousPicture();
+        }
+
+        private void rate1StarButton_Click(object sender, EventArgs e)
+        {
+            _offlineBrowser.RateImage(1);
+        }
+
+        private void rate2StarButton_Click(object sender, EventArgs e)
+        {
+            _offlineBrowser.RateImage(2);
+        }
+
+        private void rate3StarButton_Click(object sender, EventArgs e)
+        {
+            _offlineBrowser.RateImage(3);
+        }
+
+        private void rate4StarButton_Click(object sender, EventArgs e)
+        {
+            _offlineBrowser.RateImage(4);
+        }
+
+        private void rate5StarButton_Click(object sender, EventArgs e)
+        {
+            _offlineBrowser.RateImage(5);
+        }
+
+        private void deletePictureButton_Click(object sender, EventArgs e)
+        {
+            _offlineBrowser.DeletePicture();
         }
     }
 }
