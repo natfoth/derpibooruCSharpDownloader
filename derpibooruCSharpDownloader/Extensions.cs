@@ -12,32 +12,32 @@ namespace derpibooruCSharpDownloader
 {
     public static class Extensions
     {
-        public static Task ForEachAsync<TSource, TResult>(
-            this IEnumerable<TSource> source,
-            Func<TSource, Task<TResult>> taskSelector, Action<TSource, TResult> resultProcessor)
-        {
-            var oneAtATime = new SemaphoreSlim(5, 10);
-            return Task.WhenAll(
-                from item in source
-                select ProcessAsync(item, taskSelector, resultProcessor, oneAtATime));
-        }
+        //public static Task ForEachAsync<TSource, TResult>(
+        //    this IEnumerable<TSource> source,
+        //    Func<TSource, Task<TResult>> taskSelector, Action<TSource, TResult> resultProcessor)
+        //{
+        //    var oneAtATime = new SemaphoreSlim(5, 10);
+        //    return Task.WhenAll(
+        //        from item in source
+        //        select ProcessAsync(item, taskSelector, resultProcessor, oneAtATime));
+        //}
 
-        private static async Task ProcessAsync<TSource, TResult>(
-            TSource item,
-            Func<TSource, Task<TResult>> taskSelector, Action<TSource, TResult> resultProcessor,
-            SemaphoreSlim oneAtATime)
-        {
-            TResult result = await taskSelector(item);
-            await oneAtATime.WaitAsync();
-            try
-            {
-                resultProcessor(item, result);
-            }
-            finally
-            {
-                oneAtATime.Release();
-            }
-        }
+        //private static async Task ProcessAsync<TSource, TResult>(
+        //    TSource item,
+        //    Func<TSource, Task<TResult>> taskSelector, Action<TSource, TResult> resultProcessor,
+        //    SemaphoreSlim oneAtATime)
+        //{
+        //    TResult result = await taskSelector(item);
+        //    await oneAtATime.WaitAsync();
+        //    try
+        //    {
+        //        resultProcessor(item, result);
+        //    }
+        //    finally
+        //    {
+        //        oneAtATime.Release();
+        //    }
+        //}
 
         public static T CloneJson<T>(this T source)
         {
@@ -78,84 +78,6 @@ namespace derpibooruCSharpDownloader
                 list[k] = list[n];
                 list[n] = value;
             }
-        }
-
-        public static async Task ProcessWork<TQueue, TObject>(this IEnumerable<TObject> work, Func<TObject, Task> workFunc, Func<int, Task> onTick)
-            where TQueue : class, IFQueue, new()
-        {
-            var cts = new CancellationTokenSource();
-            var tQueue = FQueueCollection.Create<TQueue>(cts.Token);
-            var i = work.Count();
-            Func<TObject, Task> onWork = (o) =>
-            {
-                tQueue.AddWork(new FQueueObject(async (ct) =>
-                {
-                    await workFunc(o).ConfigureAwait(false);
-                    i--;
-                    Console.WriteLine(i);
-                }, cts.Token), false);
-                return Task.FromResult<object>(null);
-            };
-
-
-            await ProcessWork(work, onWork, ia =>
-            {
-                tQueue.StartWorking();
-                return onTick(ia);
-            });
-        }
-
-        public static async Task ProcessWork<TObject>(this IEnumerable<TObject> work, Func<TObject, Task> workFunc, Func<int, Task> onTick)
-        {
-            var latch = new CountdownEvent(work.Count());
-            var i = work.Count();
-
-            Func<Task> working = async () =>
-            {
-                foreach (var o in work)
-                {
-                    await workFunc(o).ConfigureAwait(false);
-                    latch.Signal();
-                    await Task.Delay(1).ConfigureAwait(false);
-                }
-            };
-
-            Func<Task> ticker = async () =>
-            {
-                while (latch.CurrentCount != 0)
-                {
-                    await onTick(latch.CurrentCount);
-                    await Task.Delay(100).ConfigureAwait(false);
-                }
-            };
-
-            await Task.WhenAll(working(), ticker());
-        }
-
-        public static async Task ProcessWork<TObject>(this IEnumerable<TObject> work, Func<TObject, CountdownEvent, Task> workFunc, Func<int, Task> onTick, int count)
-        {
-            var latch = new CountdownEvent(count);
-            var i = work.Count();
-
-            Func<Task> working = async () =>
-            {
-                foreach (var o in work)
-                {
-                    await workFunc(o, latch).ConfigureAwait(false);
-                    await Task.Delay(1).ConfigureAwait(false);
-                }
-            };
-
-            Func<Task> ticker = async () =>
-            {
-                while (latch.CurrentCount != 0)
-                {
-                    await onTick(latch.CurrentCount);
-                    await Task.Delay(100).ConfigureAwait(false);
-                }
-            };
-
-            await Task.WhenAll(working(), ticker());
         }
     }
 }

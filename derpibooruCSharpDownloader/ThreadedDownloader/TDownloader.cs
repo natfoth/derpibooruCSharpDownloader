@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using FunctionQueues;
 using NDepend.Path;
 using Nito.AsyncEx;
 
@@ -25,23 +26,25 @@ namespace derpibooruCSharpDownloader.ThreadedDownloader
             //new DownloadPoint((uri) => new Uri("https://proxy-de.hide.me/go.php?u=" + Uri.EscapeUriString(uri) + "&b=5&f=norefer"), 3), //Germany Proxy
         });
 
-        public sealed class FQueueGeneric : IFQueue
+        public sealed class FQueueGeneric : FQueueBase
         {
-            public int MaxWorkers
+            public override int MaxWorkers
             {
                 get { return DownloadPoints.Sum(x => x.MaxOperations); }
             }
+
+            public override bool LongRunning { get; } = true;
         }
-        public sealed class FQueueSearch : IFQueue
+        public sealed class FQueueSearch : FQueueBase
         {
-            public int MaxWorkers
+            public override int MaxWorkers
             {
                 get { return 1; }
             }
         }
-        public sealed class FQueueDatabase : IFQueue
+        public sealed class FQueueDatabase : FQueueBase
         {
-            public int MaxWorkers
+            public override int MaxWorkers
             {
                 get { return 1; }
             }
@@ -94,7 +97,7 @@ namespace derpibooruCSharpDownloader.ThreadedDownloader
             await item.Callback(item).ConfigureAwait(false);
         }
 
-        
+
     }
 
     class WorkItem
@@ -198,7 +201,7 @@ namespace derpibooruCSharpDownloader.ThreadedDownloader
         public void AddWork(FQueueObject qObject, bool startWorking = true)
         {
             Queue.Enqueue(qObject);
-            if(startWorking)
+            if (startWorking)
                 TryStartNewWorker();
         }
 
@@ -279,13 +282,6 @@ namespace derpibooruCSharpDownloader.ThreadedDownloader
             }
 
         }
-    }
-
-
-    public interface IFQueue
-    {
-        int MaxWorkers { get; }
-
     }
 
     class DownloadPoint

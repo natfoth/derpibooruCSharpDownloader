@@ -18,6 +18,7 @@ using AutoMapper;
 using derpibooruCSharpDownloader.Database;
 using derpibooruCSharpDownloader.Database.Entity;
 using derpibooruCSharpDownloader.ThreadedDownloader;
+using FunctionQueues;
 using MoreLinq;
 using NDepend.Path;
 using Newtonsoft.Json;
@@ -40,6 +41,7 @@ namespace derpibooruCSharpDownloader
         public void BuildDownloadedFiles()
         {
             AlreadyContainsHash.Clear();
+            Directory.CreateDirectory(Configuration.Instance.SaveLocation);
             string[] filePaths = Directory.GetFiles(Configuration.Instance.SaveLocation, "*",
                                          SearchOption.AllDirectories);
 
@@ -106,6 +108,8 @@ namespace derpibooruCSharpDownloader
 
             return sb.ToString();
         }
+        FunctionQueueService _fqs = new FunctionQueueService();
+
         public async Task Search(string searchTerms)
         {
             BuildDownloadedFiles();
@@ -161,8 +165,9 @@ namespace derpibooruCSharpDownloader
             Program.Form.progressBar.Maximum = numberOfPages;
             
             var cQueue = new ConcurrentQueue<Search>();
-
-            await Pages.ProcessWork<FQueues.FQueueSearch, Uri>(async (page) =>
+            var i2 = 0;
+            var i3 = 0;
+            await _fqs.ProcessWorkAsync<FQueues.FQueueSearch, Uri>(Pages, async (page) =>
             {
                 SearchContainer container = null;
                 int tries = 0;
@@ -176,16 +181,23 @@ namespace derpibooruCSharpDownloader
                 }
                 if (container == null)
                 {
-                    //Debugger.Break();
+                    Debugger.Break();
                 }
                 else
                 {
+                    if (container.search.Count == 0)
+                        Debugger.Break();
+                    i3 = i3 + container.search.Count;
+                    Console.WriteLine(i3 + " " + container.search.Count);
                     container.search.ForEach(x =>
-                        cQueue.Enqueue(x));
+                    {
+                        i2++;
+                        cQueue.Enqueue(x);
+                    });
                 }
             }, i =>
             {
-                UpdateProgress(numberOfPages, i);
+                UpdateProgress(numberOfPages, i.CurrentCount);
                 return Task.FromResult<object>(null);
             });
             
@@ -210,8 +222,7 @@ namespace derpibooruCSharpDownloader
                 {
                     var value = await hClient.GetStringAsync(page).ConfigureAwait(false);
                     SaveCache(uriHash, value);
-                    return JsonConvert.DeserializeObject<SearchContainer>(
-                        value);
+                    return JsonConvert.DeserializeObject<SearchContainer>(value);
                 }
             }
             catch (Exception e)
@@ -286,32 +297,15 @@ namespace derpibooruCSharpDownloader
                     await db.DerpyImages.ToDictionaryAsync(x => x.DerpyImageId);
             }
 
-            var searchItems = new List<List<Search>>();
-            searchItems.Add(new List<Search>());
-            var iSplit = 0;
-            foreach (var search in searchList)
-            {
-                if (iSplit == 100)
-                {
-                    iSplit = 0;
-                    searchItems.Add(new List<Search>());
-                }
-
-                searchItems.Last().Add(search);
-
-                iSplit++;
-            }
-
             var failedItems = new List<Search>();
-
-            var aLock = new object();
-                await searchItems.ProcessWork(async (search, latch) => {
-                        await BatchProcessDb(search, derpyImages, failedItems, latch);
+            
+                await searchList.ProcessBatchWorkAsync(async (search, latch) => {
+                        await BatchProcessDb(search.ToList(), derpyImages, failedItems, latch);
                     }, i =>
                     {
-                        UpdateProgress(total, i);
+                        UpdateProgress(total, i.CurrentCount);
                         return Task.FromResult<object>(null);
-                    }, searchList.Count);
+                    }, 100);
             
         }
 
