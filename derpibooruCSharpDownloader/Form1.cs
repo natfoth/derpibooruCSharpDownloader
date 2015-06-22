@@ -40,7 +40,9 @@ namespace derpibooruCSharpDownloader
         {
             this.Invoke(new Action(() =>
             {
-                searchButton.Enabled = true;
+                searchButton.Enabled = false;
+                downloadOnlyButton.Enabled = false;
+                updateDatabaseButton.Enabled = false;
             }));
         }
 
@@ -48,6 +50,9 @@ namespace derpibooruCSharpDownloader
         private async void searchButton_Click(object sender, EventArgs e)
         {
             searchButton.Enabled = false;
+            downloadOnlyButton.Enabled = false;
+            updateDatabaseButton.Enabled = false;
+
             await _downloader.Search(searchTextBox.Text);
             await _downloader.DownloadPictures();
         }
@@ -196,6 +201,16 @@ namespace derpibooruCSharpDownloader
         private void deletePictureButton_Click(object sender, EventArgs e)
         {
             _offlineBrowser.DeletePicture();
+        }
+
+        private async void downloadOnlyButton_Click(object sender, EventArgs e)
+        {
+            await _downloader.DownloadPictures();
+        }
+
+        private async void updateDatabaseButton_Click(object sender, EventArgs e)
+        {
+            await _downloader.Search(searchTextBox.Text);
         }
     }
 }

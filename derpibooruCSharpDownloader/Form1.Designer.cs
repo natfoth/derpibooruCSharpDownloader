@@ -69,6 +69,8 @@
             this.previousPictureButton = new System.Windows.Forms.Button();
             this.nextPictureButton = new System.Windows.Forms.Button();
             this.offlinePicBox = new System.Windows.Forms.PictureBox();
+            this.downloadOnlyButton = new System.Windows.Forms.Button();
+            this.updateDatabaseButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.numberOfPagesBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.imageWidthBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.imageHeightBox)).BeginInit();
@@ -84,7 +86,7 @@
             // 
             this.searchTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.searchTextBox.Location = new System.Drawing.Point(85, 375);
+            this.searchTextBox.Location = new System.Drawing.Point(85, 358);
             this.searchTextBox.Name = "searchTextBox";
             this.searchTextBox.Size = new System.Drawing.Size(553, 20);
             this.searchTextBox.TabIndex = 0;
@@ -95,7 +97,7 @@
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 378);
+            this.label1.Location = new System.Drawing.Point(6, 361);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(73, 13);
             this.label1.TabIndex = 1;
@@ -104,7 +106,7 @@
             // searchButton
             // 
             this.searchButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.searchButton.Location = new System.Drawing.Point(644, 373);
+            this.searchButton.Location = new System.Drawing.Point(644, 356);
             this.searchButton.Name = "searchButton";
             this.searchButton.Size = new System.Drawing.Size(75, 23);
             this.searchButton.TabIndex = 2;
@@ -433,6 +435,8 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.updateDatabaseButton);
+            this.tabPage1.Controls.Add(this.downloadOnlyButton);
             this.tabPage1.Controls.Add(this.clearCacheAllButton);
             this.tabPage1.Controls.Add(this.label2);
             this.tabPage1.Controls.Add(this.apiKeyLabel);
@@ -592,6 +596,28 @@
             this.offlinePicBox.TabIndex = 0;
             this.offlinePicBox.TabStop = false;
             // 
+            // downloadOnlyButton
+            // 
+            this.downloadOnlyButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.downloadOnlyButton.Location = new System.Drawing.Point(644, 385);
+            this.downloadOnlyButton.Name = "downloadOnlyButton";
+            this.downloadOnlyButton.Size = new System.Drawing.Size(75, 23);
+            this.downloadOnlyButton.TabIndex = 34;
+            this.downloadOnlyButton.Text = "Download";
+            this.downloadOnlyButton.UseVisualStyleBackColor = true;
+            this.downloadOnlyButton.Click += new System.EventHandler(this.downloadOnlyButton_Click);
+            // 
+            // updateDatabaseButton
+            // 
+            this.updateDatabaseButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.updateDatabaseButton.Location = new System.Drawing.Point(563, 384);
+            this.updateDatabaseButton.Name = "updateDatabaseButton";
+            this.updateDatabaseButton.Size = new System.Drawing.Size(75, 23);
+            this.updateDatabaseButton.TabIndex = 35;
+            this.updateDatabaseButton.Text = "Update";
+            this.updateDatabaseButton.UseVisualStyleBackColor = true;
+            this.updateDatabaseButton.Click += new System.EventHandler(this.updateDatabaseButton_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -657,6 +683,8 @@
         private System.Windows.Forms.Button rate4StarButton;
         private System.Windows.Forms.Button rate3StarButton;
         private System.Windows.Forms.Button rate2StarButton;
+        public System.Windows.Forms.Button updateDatabaseButton;
+        public System.Windows.Forms.Button downloadOnlyButton;
     }
 }
 

@@ -444,11 +444,16 @@ namespace derpibooruCSharpDownloader
         public List<DerpyImage> GetDerpyImages()
         {
             var derpyImages = new List<DerpyImage>();
+
+            var searchTags = Configuration.Instance.LastSearchTerm.ToLowerInvariant().Replace(" ", "").Split(',').ToList();
+            
+
             using (var db = new DerpyDbContext())
             {
-                derpyImages = db.DerpyImages.Include(x => x.Representations).ToList();
+                derpyImages = db.DerpyImages.Include(x => x.Representations).Where(c => searchTags.All(tag => c.Tags.Contains(tag))).ToList();
             }
 
+            
             derpyImages = derpyImages.Where(search => !AlreadyContainsHash.Contains(search.Id.ToString())).ToList();
 
 
