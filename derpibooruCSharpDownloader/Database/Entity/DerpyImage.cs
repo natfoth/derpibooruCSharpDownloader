@@ -48,7 +48,10 @@ namespace derpibooruCSharpDownloader.Database.Entity
 
         public Uri GetImageUri()
         {
-            return new Uri("https:" + Image);
+            if (Image.StartsWith("//"))
+                return new Uri("https:" + Image);
+
+            return new Uri(Image);
         }
     }
 

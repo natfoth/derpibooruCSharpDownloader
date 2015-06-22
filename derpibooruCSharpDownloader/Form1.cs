@@ -25,7 +25,6 @@ namespace derpibooruCSharpDownloader
             folderLocationTextBox.Text = Configuration.Instance.SaveLocation;
             numberOfPagesBox.Value = Configuration.Instance.NumOfPages;
             apiKeyTextBox.Text = Configuration.Instance.APIKey;
-            numPerPageBox.Value = Configuration.Instance.NumOfPicsPerPage;
             searchTextBox.Text = Configuration.Instance.LastSearchTerm;
             imageWidthBox.Value = Configuration.Instance.ImageWidth;
             imageHeightBox.Value = Configuration.Instance.ImageHeight;
@@ -34,9 +33,6 @@ namespace derpibooruCSharpDownloader
             minRatingBox.Value = Configuration.Instance.MinRating;
 
             
-
-            if (apiKeyTextBox.Text.Length > 0)
-                numPerPageBox.Enabled = true;
 
         }
 
@@ -53,7 +49,7 @@ namespace derpibooruCSharpDownloader
         {
             searchButton.Enabled = false;
             await _downloader.Search(searchTextBox.Text);
-            //await _downloader.DownloadPictures();
+            await _downloader.DownloadPictures();
         }
 
         private void folderLocationTextBox_TextChanged(object sender, EventArgs e)
@@ -78,14 +74,11 @@ namespace derpibooruCSharpDownloader
         {
             Configuration.Instance.APIKey = apiKeyTextBox.Text;
             Configuration.Instance.Save();
-
-            numPerPageBox.Enabled = apiKeyTextBox.Text.Length > 0;
         }
 
         private void numPerPageBox_ValueChanged(object sender, EventArgs e)
         {
-            Configuration.Instance.NumOfPicsPerPage = (int)numPerPageBox.Value;
-            Configuration.Instance.Save();
+            
         }
 
         private void clearCacheButton_Click(object sender, EventArgs e)

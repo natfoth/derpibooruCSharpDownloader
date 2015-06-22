@@ -146,9 +146,12 @@ namespace derpibooruCSharpDownloader
             var converted = JsonConvert.DeserializeObject<SearchContainer>(jsonString);
 
             float totalLinks = converted.total;
+            float numberOfPicsPerPage = converted.search.Count;
             Debug.WriteLine("Total Links Found on Search : " + totalLinks);
-            int numberOfPages = (int) Math.Ceiling(totalLinks/(float)Configuration.Instance.NumOfPicsPerPage) + 2;
-            numberOfPages = numberOfPages;
+            int numberOfPages = (int) Math.Ceiling(totalLinks/(float)numberOfPicsPerPage) + 2;
+
+            if(Configuration.Instance.NumOfPages != 0)
+                numberOfPages =  Math.Min(numberOfPages, Configuration.Instance.NumOfPages);
             
 
             for (int i = 1; i <= numberOfPages; i++)
@@ -237,27 +240,7 @@ namespace derpibooruCSharpDownloader
 
             await SaveSearchResultsToDb(SearchList.DistinctBy(x => x.id_number).ToList()).ConfigureAwait(false);
             
-            SearchList = SearchList.Where(search => !AlreadyContainsHash.Contains(search.id_number.ToString())).ToList();
-
-
-            if (SearchList.Count == 0)
-            {
-                FinishedDownloadingPics();
-                return;
-            }
-
-
-            if (Configuration.Instance.ImageWidth > 0)
-                SearchList = SearchList.Where(search => search.width >= Configuration.Instance.ImageWidth).ToList();
-
-            if (Configuration.Instance.ImageHeight > 0)
-                SearchList = SearchList.Where(search => search.height >= Configuration.Instance.ImageHeight).ToList();
-
-
-            if (Configuration.Instance.MinRating > 0)
-                SearchList = SearchList.Where(search => search.score >= Configuration.Instance.MinRating).ToList();
-
-            SortList();
+            
         }
 
         private static void SaveCache(string fileName, string text)
@@ -390,16 +373,15 @@ namespace derpibooruCSharpDownloader
         object _lock = new object();
         public async Task DownloadPictures()
         {
-            List<DerpyImage> derpyImages;
+            var derpyImages = GetDerpyImages();
 
-            using (var db = new DerpyDbContext())
+            if (derpyImages.Count == 0)
             {
-                derpyImages =
-                    (await db.DerpyImages.Include(x => x.Representations).Where(x => 
-                    x.Score > 50
-                    && (x.AspectRatio >= 1.7 && x.AspectRatio < 1.8)
-                    && (x.Height >= 1080 && x.Width >= 1920)).ToListAsync()).Where(x => x.Tags.ToLowerInvariant().Contains("celestia")).ToList();
+                FinishedDownloadingPics();
+                return;
             }
+
+            
             var toDownload = derpyImages.Count;
             var downloaded = 0;
 
@@ -447,9 +429,9 @@ namespace derpibooruCSharpDownloader
                 }
                 await Task.Delay(100).ConfigureAwait(false);
             }
-            
 
 
+            FinishedDownloadingPics();
         }
 
         public async void FinishedDownloadingPics()
@@ -457,6 +439,67 @@ namespace derpibooruCSharpDownloader
             Debug.WriteLine("Finished Downloading all pics");
 
             Program.Form.EnableSearchButton();
+        }
+
+        public List<DerpyImage> GetDerpyImages()
+        {
+            var derpyImages = new List<DerpyImage>();
+            using (var db = new DerpyDbContext())
+            {
+                derpyImages = db.DerpyImages.Include(x => x.Representations).ToList();
+            }
+
+            derpyImages = derpyImages.Where(search => !AlreadyContainsHash.Contains(search.Id.ToString())).ToList();
+
+
+            if (derpyImages.Count == 0)
+            {
+                FinishedDownloadingPics();
+                return new List<DerpyImage>();
+            }
+
+
+            if (Configuration.Instance.ImageWidth > 0)
+                derpyImages = derpyImages.Where(search => search.Width >= Configuration.Instance.ImageWidth).ToList();
+
+            if (Configuration.Instance.ImageHeight > 0)
+                derpyImages = derpyImages.Where(search => search.Height >= Configuration.Instance.ImageHeight).ToList();
+
+
+            if (Configuration.Instance.MinRating > 0)
+                derpyImages = derpyImages.Where(search => search.Score >= Configuration.Instance.MinRating).ToList();
+
+
+            switch (Configuration.Instance.OrderingSelectedIndex)
+            {
+                case 0: // ratings
+                    derpyImages = derpyImages.OrderByDescending(search => search.Score).ToList();
+                    break;
+                case 1: // newest
+                    derpyImages = derpyImages.OrderByDescending(search => search.Id).ToList();
+                    break;
+                case 2: // oldest
+                    derpyImages = derpyImages.OrderBy(search => search.Id).ToList();
+                    break;
+                case 3: // Favorites
+                    derpyImages = derpyImages.OrderByDescending(search => search.Favourites).ToList();
+                    break;
+                case 4: // Random
+                    derpyImages.Shuffle();
+                    break;
+
+            }
+
+            //restrict the images last
+            if (Configuration.Instance.NumOfPicsTotal != 0)
+            {
+                while (derpyImages.Count > Configuration.Instance.NumOfPicsTotal)
+                {
+                    derpyImages.RemoveAt(derpyImages.Count-1);
+                }
+            }
+
+            return derpyImages;
         }
 
         public void SortList()
@@ -488,7 +531,7 @@ namespace derpibooruCSharpDownloader
             var extension = Path.GetExtension(search.GetImageUri().ToString());
 
             var additionalFolder = "\\";
-            if (search.Tags.Contains("explicit"))
+            if (!search.Tags.Contains("safe"))
                 additionalFolder = "\\NSFW\\";
 
             if (!Directory.Exists(Configuration.Instance.SaveLocation + additionalFolder))
