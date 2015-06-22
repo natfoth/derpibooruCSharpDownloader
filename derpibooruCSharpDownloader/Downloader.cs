@@ -185,8 +185,6 @@ namespace derpibooruCSharpDownloader
                 }
                 else
                 {
-                    if (container.search.Count == 0)
-                        Debugger.Break();
                     i3 = i3 + container.search.Count;
                     Console.WriteLine(i3 + " " + container.search.Count);
                     container.search.ForEach(x =>
@@ -221,7 +219,7 @@ namespace derpibooruCSharpDownloader
                 using (var hClient = new HttpClient())
                 {
                     var value = await hClient.GetStringAsync(page).ConfigureAwait(false);
-                    SaveCache(uriHash, value);
+                    //SaveCache(uriHash, value);
                     return JsonConvert.DeserializeObject<SearchContainer>(value);
                 }
             }
@@ -327,7 +325,7 @@ namespace derpibooruCSharpDownloader
             }
         }
 
-        private static async Task BatchProcessDb(List<Search> search, Dictionary<long, DerpyImage> derpyImages, List<Search> failedItems, CountdownEvent latch)
+        private static async Task BatchProcessDb(List<Search> search, Dictionary<long, DerpyImage> derpyImages, List<Search> failedItems, CountdownEventSub latch)
         {
             using (var db = new DerpyDbContext())
             {

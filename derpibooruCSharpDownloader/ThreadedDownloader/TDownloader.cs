@@ -20,7 +20,7 @@ namespace derpibooruCSharpDownloader.ThreadedDownloader
         internal readonly static ConcurrentBag<DownloadPoint> DownloadPoints = new ConcurrentBag<DownloadPoint>(new[]
         {
             new DownloadPoint((uri) => new Uri("http://web.archive.org/" + uri), 10), //Wayback Machine
-            new DownloadPoint((uri) => new Uri(uri), 10), //Default Direct
+            new DownloadPoint((uri) => new Uri(uri), 50), //Default Direct
             //new DownloadPoint((uri) => new Uri("https://proxy-nl.hide.me/go.php?u=" + Uri.EscapeUriString(uri) + "&b=5&f=norefer"), 3), //NL Proxy
             //new DownloadPoint((uri) => new Uri("https://proxy-us.hide.me/go.php?u=" + Uri.EscapeUriString(uri) + "&b=5&f=norefer"), 3), //US Proxy
             //new DownloadPoint((uri) => new Uri("https://proxy-de.hide.me/go.php?u=" + Uri.EscapeUriString(uri) + "&b=5&f=norefer"), 3), //Germany Proxy
@@ -37,17 +37,11 @@ namespace derpibooruCSharpDownloader.ThreadedDownloader
         }
         public sealed class FQueueSearch : FQueueBase
         {
-            public override int MaxWorkers
-            {
-                get { return 1; }
-            }
+            public override int MaxWorkers => 10;
         }
         public sealed class FQueueDatabase : FQueueBase
         {
-            public override int MaxWorkers
-            {
-                get { return 1; }
-            }
+            public override int MaxWorkers => 1;
         }
     }
 
