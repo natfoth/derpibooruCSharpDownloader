@@ -31,12 +31,16 @@ namespace derpibooruCSharpDownloader
 
         public static class ThreadSafeRandom
         {
-            [ThreadStatic]
-            private static Random Local;
+            [ThreadStatic] private static Random Local;
 
             public static Random ThisThreadsRandom
             {
-                get { return Local ?? (Local = new Random(unchecked(Environment.TickCount * 31 + Thread.CurrentThread.ManagedThreadId))); }
+                get
+                {
+                    return Local ??
+                           (Local =
+                               new Random(unchecked(Environment.TickCount*31 + Thread.CurrentThread.ManagedThreadId)));
+                }
             }
         }
 
@@ -51,6 +55,37 @@ namespace derpibooruCSharpDownloader
                 list[k] = list[n];
                 list[n] = value;
             }
+        }
+
+
+        public static bool ContainsAny(this string str, params string[] values)
+        {
+            if (!string.IsNullOrEmpty(str) || values.Length > 0)
+            {
+                foreach (string value in values)
+                {
+                    if (str.Contains(value))
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static bool ContainsAll(this string str, params string[] values)
+        {
+            if (!string.IsNullOrEmpty(str) || values.Length > 0)
+            {
+                foreach (string value in values)
+                {
+                    if (!str.Contains(value))
+                        return false;
+                }
+
+                return true;
+            }
+
+            return false;
         }
     }
 }

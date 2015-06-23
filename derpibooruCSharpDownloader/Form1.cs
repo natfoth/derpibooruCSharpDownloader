@@ -25,7 +25,6 @@ namespace derpibooruCSharpDownloader
             folderLocationTextBox.Text = Configuration.Instance.SaveLocation;
             numberOfPagesBox.Value = Configuration.Instance.NumOfPages;
             apiKeyTextBox.Text = Configuration.Instance.APIKey;
-            numPerPageBox.Value = Configuration.Instance.NumOfPicsPerPage;
             searchTextBox.Text = Configuration.Instance.LastSearchTerm;
             imageWidthBox.Value = Configuration.Instance.ImageWidth;
             imageHeightBox.Value = Configuration.Instance.ImageHeight;
@@ -35,16 +34,15 @@ namespace derpibooruCSharpDownloader
 
             
 
-            if (apiKeyTextBox.Text.Length > 0)
-                numPerPageBox.Enabled = true;
-
         }
 
         public void EnableSearchButton()
         {
             this.Invoke(new Action(() =>
             {
-                searchButton.Enabled = true;
+                searchButton.Enabled = false;
+                downloadOnlyButton.Enabled = false;
+                updateDatabaseButton.Enabled = false;
             }));
         }
 
@@ -52,8 +50,11 @@ namespace derpibooruCSharpDownloader
         private async void searchButton_Click(object sender, EventArgs e)
         {
             searchButton.Enabled = false;
+            downloadOnlyButton.Enabled = false;
+            updateDatabaseButton.Enabled = false;
+
             await _downloader.Search(searchTextBox.Text);
-            //await _downloader.DownloadPictures();
+            await _downloader.DownloadPictures();
         }
 
         private void folderLocationTextBox_TextChanged(object sender, EventArgs e)
@@ -78,14 +79,11 @@ namespace derpibooruCSharpDownloader
         {
             Configuration.Instance.APIKey = apiKeyTextBox.Text;
             Configuration.Instance.Save();
-
-            numPerPageBox.Enabled = apiKeyTextBox.Text.Length > 0;
         }
 
         private void numPerPageBox_ValueChanged(object sender, EventArgs e)
         {
-            Configuration.Instance.NumOfPicsPerPage = (int)numPerPageBox.Value;
-            Configuration.Instance.Save();
+            
         }
 
         private void clearCacheButton_Click(object sender, EventArgs e)
@@ -203,6 +201,16 @@ namespace derpibooruCSharpDownloader
         private void deletePictureButton_Click(object sender, EventArgs e)
         {
             _offlineBrowser.DeletePicture();
+        }
+
+        private async void downloadOnlyButton_Click(object sender, EventArgs e)
+        {
+            await _downloader.DownloadPictures();
+        }
+
+        private async void updateDatabaseButton_Click(object sender, EventArgs e)
+        {
+            await _downloader.Search(searchTextBox.Text);
         }
     }
 }

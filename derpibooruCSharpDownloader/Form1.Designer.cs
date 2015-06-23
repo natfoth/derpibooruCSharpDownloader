@@ -37,9 +37,6 @@
             this.label3 = new System.Windows.Forms.Label();
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.apiKeyTextBox = new System.Windows.Forms.TextBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.numPerPageBox = new System.Windows.Forms.NumericUpDown();
-            this.label6 = new System.Windows.Forms.Label();
             this.progressLabel = new System.Windows.Forms.Label();
             this.currentProgressLabel = new System.Windows.Forms.Label();
             this.TotalProgressLabel = new System.Windows.Forms.Label();
@@ -63,17 +60,18 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.offlinePicBox = new System.Windows.Forms.PictureBox();
-            this.nextPictureButton = new System.Windows.Forms.Button();
-            this.previousPictureButton = new System.Windows.Forms.Button();
-            this.deletePictureButton = new System.Windows.Forms.Button();
-            this.rate1StarButton = new System.Windows.Forms.Button();
-            this.rate2StarButton = new System.Windows.Forms.Button();
-            this.rate3StarButton = new System.Windows.Forms.Button();
-            this.rate4StarButton = new System.Windows.Forms.Button();
             this.rate5StarButton = new System.Windows.Forms.Button();
+            this.rate4StarButton = new System.Windows.Forms.Button();
+            this.rate3StarButton = new System.Windows.Forms.Button();
+            this.rate2StarButton = new System.Windows.Forms.Button();
+            this.rate1StarButton = new System.Windows.Forms.Button();
+            this.deletePictureButton = new System.Windows.Forms.Button();
+            this.previousPictureButton = new System.Windows.Forms.Button();
+            this.nextPictureButton = new System.Windows.Forms.Button();
+            this.offlinePicBox = new System.Windows.Forms.PictureBox();
+            this.downloadOnlyButton = new System.Windows.Forms.Button();
+            this.updateDatabaseButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.numberOfPagesBox)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numPerPageBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.imageWidthBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.imageHeightBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numOfPicsTotalBox)).BeginInit();
@@ -88,7 +86,7 @@
             // 
             this.searchTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.searchTextBox.Location = new System.Drawing.Point(85, 375);
+            this.searchTextBox.Location = new System.Drawing.Point(85, 358);
             this.searchTextBox.Name = "searchTextBox";
             this.searchTextBox.Size = new System.Drawing.Size(553, 20);
             this.searchTextBox.TabIndex = 0;
@@ -99,7 +97,7 @@
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 378);
+            this.label1.Location = new System.Drawing.Point(6, 361);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(73, 13);
             this.label1.TabIndex = 1;
@@ -108,7 +106,7 @@
             // searchButton
             // 
             this.searchButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.searchButton.Location = new System.Drawing.Point(644, 373);
+            this.searchButton.Location = new System.Drawing.Point(644, 356);
             this.searchButton.Name = "searchButton";
             this.searchButton.Size = new System.Drawing.Size(75, 23);
             this.searchButton.TabIndex = 2;
@@ -179,46 +177,6 @@
             this.apiKeyTextBox.Size = new System.Drawing.Size(155, 20);
             this.apiKeyTextBox.TabIndex = 9;
             this.apiKeyTextBox.TextChanged += new System.EventHandler(this.apiKeyTextBox_TextChanged);
-            // 
-            // label5
-            // 
-            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(477, 94);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(74, 13);
-            this.label5.TabIndex = 12;
-            this.label5.Text = "Pics Per Page";
-            // 
-            // numPerPageBox
-            // 
-            this.numPerPageBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.numPerPageBox.Enabled = false;
-            this.numPerPageBox.Location = new System.Drawing.Point(557, 92);
-            this.numPerPageBox.Maximum = new decimal(new int[] {
-            50,
-            0,
-            0,
-            0});
-            this.numPerPageBox.Name = "numPerPageBox";
-            this.numPerPageBox.Size = new System.Drawing.Size(61, 20);
-            this.numPerPageBox.TabIndex = 11;
-            this.numPerPageBox.Value = new decimal(new int[] {
-            15,
-            0,
-            0,
-            0});
-            this.numPerPageBox.ValueChanged += new System.EventHandler(this.numPerPageBox_ValueChanged);
-            // 
-            // label6
-            // 
-            this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(624, 95);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(96, 13);
-            this.label6.TabIndex = 13;
-            this.label6.Text = "- Requires API Key";
             // 
             // progressLabel
             // 
@@ -477,6 +435,8 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.updateDatabaseButton);
+            this.tabPage1.Controls.Add(this.downloadOnlyButton);
             this.tabPage1.Controls.Add(this.clearCacheAllButton);
             this.tabPage1.Controls.Add(this.label2);
             this.tabPage1.Controls.Add(this.apiKeyLabel);
@@ -496,11 +456,8 @@
             this.tabPage1.Controls.Add(this.clearCacheButton);
             this.tabPage1.Controls.Add(this.apiKeyTextBox);
             this.tabPage1.Controls.Add(this.label11);
-            this.tabPage1.Controls.Add(this.numPerPageBox);
             this.tabPage1.Controls.Add(this.imageHeightBox);
-            this.tabPage1.Controls.Add(this.label5);
             this.tabPage1.Controls.Add(this.label10);
-            this.tabPage1.Controls.Add(this.label6);
             this.tabPage1.Controls.Add(this.label8);
             this.tabPage1.Controls.Add(this.progressLabel);
             this.tabPage1.Controls.Add(this.imageWidthBox);
@@ -536,40 +493,60 @@
             this.tabPage2.Text = "Browse Offline";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
-            // offlinePicBox
+            // rate5StarButton
             // 
-            this.offlinePicBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.offlinePicBox.BackColor = System.Drawing.Color.Silver;
-            this.offlinePicBox.Location = new System.Drawing.Point(3, 6);
-            this.offlinePicBox.Name = "offlinePicBox";
-            this.offlinePicBox.Size = new System.Drawing.Size(720, 416);
-            this.offlinePicBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.offlinePicBox.TabIndex = 0;
-            this.offlinePicBox.TabStop = false;
+            this.rate5StarButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.rate5StarButton.Location = new System.Drawing.Point(429, 436);
+            this.rate5StarButton.Name = "rate5StarButton";
+            this.rate5StarButton.Size = new System.Drawing.Size(42, 23);
+            this.rate5StarButton.TabIndex = 8;
+            this.rate5StarButton.Text = "5";
+            this.rate5StarButton.UseVisualStyleBackColor = true;
+            this.rate5StarButton.Click += new System.EventHandler(this.rate5StarButton_Click);
             // 
-            // nextPictureButton
+            // rate4StarButton
             // 
-            this.nextPictureButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.nextPictureButton.Location = new System.Drawing.Point(648, 436);
-            this.nextPictureButton.Name = "nextPictureButton";
-            this.nextPictureButton.Size = new System.Drawing.Size(75, 23);
-            this.nextPictureButton.TabIndex = 1;
-            this.nextPictureButton.Text = "Next";
-            this.nextPictureButton.UseVisualStyleBackColor = true;
-            this.nextPictureButton.Click += new System.EventHandler(this.nextPictureButton_Click);
+            this.rate4StarButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.rate4StarButton.Location = new System.Drawing.Point(381, 436);
+            this.rate4StarButton.Name = "rate4StarButton";
+            this.rate4StarButton.Size = new System.Drawing.Size(42, 23);
+            this.rate4StarButton.TabIndex = 7;
+            this.rate4StarButton.Text = "4";
+            this.rate4StarButton.UseVisualStyleBackColor = true;
+            this.rate4StarButton.Click += new System.EventHandler(this.rate4StarButton_Click);
             // 
-            // previousPictureButton
+            // rate3StarButton
             // 
-            this.previousPictureButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.previousPictureButton.Location = new System.Drawing.Point(3, 436);
-            this.previousPictureButton.Name = "previousPictureButton";
-            this.previousPictureButton.Size = new System.Drawing.Size(75, 23);
-            this.previousPictureButton.TabIndex = 2;
-            this.previousPictureButton.Text = "Previous";
-            this.previousPictureButton.UseVisualStyleBackColor = true;
-            this.previousPictureButton.Click += new System.EventHandler(this.previousPictureButton_Click);
+            this.rate3StarButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.rate3StarButton.Location = new System.Drawing.Point(333, 436);
+            this.rate3StarButton.Name = "rate3StarButton";
+            this.rate3StarButton.Size = new System.Drawing.Size(42, 23);
+            this.rate3StarButton.TabIndex = 6;
+            this.rate3StarButton.Text = "3";
+            this.rate3StarButton.UseVisualStyleBackColor = true;
+            this.rate3StarButton.Click += new System.EventHandler(this.rate3StarButton_Click);
+            // 
+            // rate2StarButton
+            // 
+            this.rate2StarButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.rate2StarButton.Location = new System.Drawing.Point(285, 436);
+            this.rate2StarButton.Name = "rate2StarButton";
+            this.rate2StarButton.Size = new System.Drawing.Size(42, 23);
+            this.rate2StarButton.TabIndex = 5;
+            this.rate2StarButton.Text = "2";
+            this.rate2StarButton.UseVisualStyleBackColor = true;
+            this.rate2StarButton.Click += new System.EventHandler(this.rate2StarButton_Click);
+            // 
+            // rate1StarButton
+            // 
+            this.rate1StarButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.rate1StarButton.Location = new System.Drawing.Point(237, 436);
+            this.rate1StarButton.Name = "rate1StarButton";
+            this.rate1StarButton.Size = new System.Drawing.Size(42, 23);
+            this.rate1StarButton.TabIndex = 4;
+            this.rate1StarButton.Text = "1";
+            this.rate1StarButton.UseVisualStyleBackColor = true;
+            this.rate1StarButton.Click += new System.EventHandler(this.rate1StarButton_Click);
             // 
             // deletePictureButton
             // 
@@ -584,60 +561,62 @@
             this.deletePictureButton.UseVisualStyleBackColor = false;
             this.deletePictureButton.Click += new System.EventHandler(this.deletePictureButton_Click);
             // 
-            // rate1StarButton
+            // previousPictureButton
             // 
-            this.rate1StarButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.rate1StarButton.Location = new System.Drawing.Point(237, 436);
-            this.rate1StarButton.Name = "rate1StarButton";
-            this.rate1StarButton.Size = new System.Drawing.Size(42, 23);
-            this.rate1StarButton.TabIndex = 4;
-            this.rate1StarButton.Text = "1";
-            this.rate1StarButton.UseVisualStyleBackColor = true;
-            this.rate1StarButton.Click += new System.EventHandler(this.rate1StarButton_Click);
+            this.previousPictureButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.previousPictureButton.Location = new System.Drawing.Point(3, 436);
+            this.previousPictureButton.Name = "previousPictureButton";
+            this.previousPictureButton.Size = new System.Drawing.Size(75, 23);
+            this.previousPictureButton.TabIndex = 2;
+            this.previousPictureButton.Text = "Previous";
+            this.previousPictureButton.UseVisualStyleBackColor = true;
+            this.previousPictureButton.Click += new System.EventHandler(this.previousPictureButton_Click);
             // 
-            // rate2StarButton
+            // nextPictureButton
             // 
-            this.rate2StarButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.rate2StarButton.Location = new System.Drawing.Point(285, 436);
-            this.rate2StarButton.Name = "rate2StarButton";
-            this.rate2StarButton.Size = new System.Drawing.Size(42, 23);
-            this.rate2StarButton.TabIndex = 5;
-            this.rate2StarButton.Text = "2";
-            this.rate2StarButton.UseVisualStyleBackColor = true;
-            this.rate2StarButton.Click += new System.EventHandler(this.rate2StarButton_Click);
+            this.nextPictureButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.nextPictureButton.Location = new System.Drawing.Point(648, 436);
+            this.nextPictureButton.Name = "nextPictureButton";
+            this.nextPictureButton.Size = new System.Drawing.Size(75, 23);
+            this.nextPictureButton.TabIndex = 1;
+            this.nextPictureButton.Text = "Next";
+            this.nextPictureButton.UseVisualStyleBackColor = true;
+            this.nextPictureButton.Click += new System.EventHandler(this.nextPictureButton_Click);
             // 
-            // rate3StarButton
+            // offlinePicBox
             // 
-            this.rate3StarButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.rate3StarButton.Location = new System.Drawing.Point(333, 436);
-            this.rate3StarButton.Name = "rate3StarButton";
-            this.rate3StarButton.Size = new System.Drawing.Size(42, 23);
-            this.rate3StarButton.TabIndex = 6;
-            this.rate3StarButton.Text = "3";
-            this.rate3StarButton.UseVisualStyleBackColor = true;
-            this.rate3StarButton.Click += new System.EventHandler(this.rate3StarButton_Click);
+            this.offlinePicBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.offlinePicBox.BackColor = System.Drawing.Color.Silver;
+            this.offlinePicBox.Location = new System.Drawing.Point(3, 6);
+            this.offlinePicBox.Name = "offlinePicBox";
+            this.offlinePicBox.Size = new System.Drawing.Size(720, 416);
+            this.offlinePicBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.offlinePicBox.TabIndex = 0;
+            this.offlinePicBox.TabStop = false;
             // 
-            // rate4StarButton
+            // downloadOnlyButton
             // 
-            this.rate4StarButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.rate4StarButton.Location = new System.Drawing.Point(381, 436);
-            this.rate4StarButton.Name = "rate4StarButton";
-            this.rate4StarButton.Size = new System.Drawing.Size(42, 23);
-            this.rate4StarButton.TabIndex = 7;
-            this.rate4StarButton.Text = "4";
-            this.rate4StarButton.UseVisualStyleBackColor = true;
-            this.rate4StarButton.Click += new System.EventHandler(this.rate4StarButton_Click);
+            this.downloadOnlyButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.downloadOnlyButton.Location = new System.Drawing.Point(644, 385);
+            this.downloadOnlyButton.Name = "downloadOnlyButton";
+            this.downloadOnlyButton.Size = new System.Drawing.Size(75, 23);
+            this.downloadOnlyButton.TabIndex = 34;
+            this.downloadOnlyButton.Text = "Download";
+            this.downloadOnlyButton.UseVisualStyleBackColor = true;
+            this.downloadOnlyButton.Click += new System.EventHandler(this.downloadOnlyButton_Click);
             // 
-            // rate5StarButton
+            // updateDatabaseButton
             // 
-            this.rate5StarButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.rate5StarButton.Location = new System.Drawing.Point(429, 436);
-            this.rate5StarButton.Name = "rate5StarButton";
-            this.rate5StarButton.Size = new System.Drawing.Size(42, 23);
-            this.rate5StarButton.TabIndex = 8;
-            this.rate5StarButton.Text = "5";
-            this.rate5StarButton.UseVisualStyleBackColor = true;
-            this.rate5StarButton.Click += new System.EventHandler(this.rate5StarButton_Click);
+            this.updateDatabaseButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.updateDatabaseButton.Location = new System.Drawing.Point(563, 384);
+            this.updateDatabaseButton.Name = "updateDatabaseButton";
+            this.updateDatabaseButton.Size = new System.Drawing.Size(75, 23);
+            this.updateDatabaseButton.TabIndex = 35;
+            this.updateDatabaseButton.Text = "Update";
+            this.updateDatabaseButton.UseVisualStyleBackColor = true;
+            this.updateDatabaseButton.Click += new System.EventHandler(this.updateDatabaseButton_Click);
             // 
             // Form1
             // 
@@ -648,7 +627,6 @@
             this.Name = "Form1";
             this.Text = "Derpiboo.ru Downloader by Natfoth";
             ((System.ComponentModel.ISupportInitialize)(this.numberOfPagesBox)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numPerPageBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.imageWidthBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.imageHeightBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numOfPicsTotalBox)).EndInit();
@@ -673,9 +651,6 @@
         public System.Windows.Forms.Label label3;
         public System.Windows.Forms.ProgressBar progressBar;
         public System.Windows.Forms.TextBox apiKeyTextBox;
-        public System.Windows.Forms.Label label5;
-        public System.Windows.Forms.NumericUpDown numPerPageBox;
-        public System.Windows.Forms.Label label6;
         public System.Windows.Forms.Label progressLabel;
         public System.Windows.Forms.Label currentProgressLabel;
         public System.Windows.Forms.Label TotalProgressLabel;
@@ -708,6 +683,8 @@
         private System.Windows.Forms.Button rate4StarButton;
         private System.Windows.Forms.Button rate3StarButton;
         private System.Windows.Forms.Button rate2StarButton;
+        public System.Windows.Forms.Button updateDatabaseButton;
+        public System.Windows.Forms.Button downloadOnlyButton;
     }
 }
 
