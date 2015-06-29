@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.NetworkInformation;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -153,13 +154,20 @@ namespace derpibooruCSharpDownloader
             float numberOfPicsPerPage = converted.search.Count;
             Debug.WriteLine("Total Links Found on Search : " + totalLinks);
             int numberOfPages = (int) Math.Ceiling(totalLinks/(float)numberOfPicsPerPage) + 2;
-
+            
             if(Configuration.Instance.NumOfPages != 0)
                 numberOfPages =  Math.Min(numberOfPages, Configuration.Instance.NumOfPages);
             
+            var iSkip = 0;
+            var iSkipTo = 0;
 
             for (int i = 1; i <= numberOfPages; i++)
             {
+                if (iSkip < iSkipTo)
+                {
+                    iSkip++;
+                    continue;
+                }
                 var uri =
                     new Uri("https://derpiboo.ru/search.json?q=" + joinedString + "&page=" + i + "&key=" +
                             Configuration.Instance.APIKey);
@@ -203,12 +211,38 @@ namespace derpibooruCSharpDownloader
             }, i =>
             {
                 UpdateProgress(numberOfPages, i.CurrentCount);
-                return Task.FromResult<object>(null);
+                var list = new List<Search>();
+                int iQueue = 0;
+                //if(cQueue.Count != 0)
+                    //Console.WriteLine("Database Items left to process: {0}", cQueue.Count);
+                while (!cQueue.IsEmpty && iQueue < 100)
+                {
+                    Search res = null;
+                    cQueue.TryDequeue(out res);
+                    list.Add(res);
+                    iQueue++;
+                }
+                return BatchProcessDb(list);
             });
             
-            SearchList.AddRange(cQueue);
+            while (!cQueue.IsEmpty)
+            {
+                var list2 = new List<Search>();
+                int iQueue = 0;
+                if (cQueue.Count != 0)
+                    Console.WriteLine("Database Items left to process: {0}", cQueue.Count);
+                while (!cQueue.IsEmpty && iQueue < 100)
+                {
+                    Search res = null;
+                    cQueue.TryDequeue(out res);
+                    list2.Add(res);
+                    iQueue++;
+                }
+                await BatchProcessDb(list2);
+            }
+            //SearchList.AddRange(cQueue);
 
-            await FinishedDownloading(false, searchTerms);
+            //await FinishedDownloading(false, searchTerms);
 
             int bob = 1;
         }
@@ -244,8 +278,8 @@ namespace derpibooruCSharpDownloader
 
             await SaveSearchResultsToDb(SearchList.DistinctBy(x => x.id_number).ToList()).ConfigureAwait(false);
             
-            
-        }
+
+            }
 
         private static void SaveCache(string fileName, string text)
         {
@@ -285,7 +319,7 @@ namespace derpibooruCSharpDownloader
             var failedItems = new List<Search>();
             
                 await searchList.ProcessBatchWorkAsync(async (search, latch) => {
-                        await BatchProcessDb(search.ToList(), derpyImages, failedItems, latch);
+                        //await BatchProcessDb(search.ToList(), failedItems, latch);
                     }, i =>
                     {
                         UpdateProgress(total, i.CurrentCount);
@@ -312,8 +346,9 @@ namespace derpibooruCSharpDownloader
             }
         }
 
-        private static async Task BatchProcessDb(List<Search> search, Dictionary<long, DerpyImage> derpyImages, List<Search> failedItems, CountdownEventSub latch)
+        private static async Task BatchProcessDb(List<Search> search)
         {
+            var processed = new CountdownEvent(0);
             using (var db = new DerpyDbContext())
             {
                 db.Configuration.AutoDetectChangesEnabled = false;
@@ -326,7 +361,7 @@ namespace derpibooruCSharpDownloader
                         var tries = 0;
                         while (tries <= 10)
                         {
-                            if (await CreateImageIfNeeded(derpyImages, item, db))
+                            if (await CreateImageIfNeeded(item, db, processed))
                                 break;
                             tries++;
                             await Task.Delay(10);
@@ -336,23 +371,25 @@ namespace derpibooruCSharpDownloader
                     }
                     catch (Exception ex)
                     {
-                        failedItems.Add(item);
+                        //failedItems.Add(item);
                     }
-                    latch.Signal();
+                    //latch.Signal();
                 }
                 await db.SaveChangesAsync().ConfigureAwait(false);
             }
+            if(processed.CurrentCount != 0)
+                Console.WriteLine("Processed New Database Images: {0}", processed.CurrentCount);
         }
 
-        private static async Task<bool> CreateImageIfNeeded(Dictionary<long, DerpyImage> derpyImages, Search search, DerpyDbContext db)
+        private static async Task<bool> CreateImageIfNeeded(Search search, DerpyDbContext db, CountdownEvent processed)
         {
-            
             if (await db.DerpyImages.AnyAsync(x => x.DerpyImageId == search.id_number))
             {
                 //Debugger.Break();
             }
             else
             {
+                processed.Reset(processed.CurrentCount + 1);
                 var dImage = Mapper.Map<DerpyImage>(search);
                 dImage.DerpyImageId = search.id_number;
                 dImage.Representations.Id = dImage.Id;
@@ -435,7 +472,7 @@ namespace derpibooruCSharpDownloader
                 }
                 await Task.Delay(100).ConfigureAwait(false);
             }
-
+            
 
             FinishedDownloadingPics();
         }

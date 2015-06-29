@@ -30,8 +30,8 @@ namespace derpibooruCSharpDownloader
             FilePaths.AddRange(filePaths);
 
             FilePaths = FilePaths.Where(path => !path.Contains("Thumb")).OrderBy(path => Int32.Parse(Path.GetFileNameWithoutExtension(path))).ToList();
-
-            Program.Form.offlinePicBox.Load(FilePaths[CurrentPicIndex]);
+            if(FilePaths.Any())
+                Program.Form.offlinePicBox.Load(FilePaths[CurrentPicIndex]);
         }
 
         public void NextPicture()
