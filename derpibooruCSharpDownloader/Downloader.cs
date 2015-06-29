@@ -32,7 +32,7 @@ namespace derpibooruCSharpDownloader
         public List<Search> SearchList { get; set; } = new List<Search>();
         public List<Search> ToDownloadSearchList { get; set; } = new List<Search>();
 
-        public List<string> AlreadyContainsHash = new List<string>(); 
+        public List<long> AlreadyContainsHash = new List<long>(); 
 
         public BlockingCollection<WebClient> ClientQueue = new BlockingCollection<WebClient>();
         public List<Uri> Pages = new List<Uri>();
@@ -47,8 +47,12 @@ namespace derpibooruCSharpDownloader
 
             foreach (var filePath in filePaths)
             {
-                AlreadyContainsHash.Add(Path.GetFileNameWithoutExtension(filePath));
+                int id;
+                if(int.TryParse(Path.GetFileNameWithoutExtension(filePath), out id))
+                    AlreadyContainsHash.Add(id);
             }
+
+            AlreadyContainsHash = AlreadyContainsHash.OrderBy(c => c).ToList();
         }
 
         public bool CheckForCache(string searchTerms)
@@ -373,6 +377,8 @@ namespace derpibooruCSharpDownloader
         object _lock = new object();
         public async Task DownloadPictures()
         {
+            BuildDownloadedFiles();
+
             var derpyImages = GetDerpyImages();
 
             if (derpyImages.Count == 0)
@@ -450,11 +456,11 @@ namespace derpibooruCSharpDownloader
 
             using (var db = new DerpyDbContext())
             {
-                derpyImages = db.DerpyImages.Include(x => x.Representations).Where(c => searchTags.All(tag => c.Tags.Contains(tag))).ToList();
+                derpyImages = db.DerpyImages.Include(x => x.Representations).Where(c => !AlreadyContainsHash.Contains(c.DerpyImageId) && searchTags.All(tag => c.Tags.Contains(tag))).ToList();
             }
 
             
-            derpyImages = derpyImages.Where(search => !AlreadyContainsHash.Contains(search.Id.ToString())).ToList();
+           // derpyImages = derpyImages.Where(search => !AlreadyContainsHash.Contains(search.DerpyImageId)).ToList();
 
 
             if (derpyImages.Count == 0)
@@ -481,10 +487,10 @@ namespace derpibooruCSharpDownloader
                     derpyImages = derpyImages.OrderByDescending(search => search.Score).ToList();
                     break;
                 case 1: // newest
-                    derpyImages = derpyImages.OrderByDescending(search => search.Id).ToList();
+                    derpyImages = derpyImages.OrderByDescending(search => search.DerpyImageId).ToList();
                     break;
                 case 2: // oldest
-                    derpyImages = derpyImages.OrderBy(search => search.Id).ToList();
+                    derpyImages = derpyImages.OrderBy(search => search.DerpyImageId).ToList();
                     break;
                 case 3: // Favorites
                     derpyImages = derpyImages.OrderByDescending(search => search.Favourites).ToList();

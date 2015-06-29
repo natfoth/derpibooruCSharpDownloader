@@ -21,11 +21,11 @@ namespace derpibooruCSharpDownloader
             var filePaths = Directory.GetFiles(Configuration.Instance.SaveLocation, "*",
                 SearchOption.TopDirectoryOnly).ToList();
 
-          //  var nsfwFilePaths = Directory.GetFiles(Configuration.Instance.SaveLocation + "\\NSFW", "*",
-           //     SearchOption.TopDirectoryOnly).ToList();
+            var nsfwFilePaths = Directory.GetFiles(Configuration.Instance.SaveLocation + "\\NSFW", "*",
+                SearchOption.TopDirectoryOnly).ToList();
 
 
-           // filePaths.AddRange(nsfwFilePaths);
+            filePaths.AddRange(nsfwFilePaths);
 
             FilePaths.AddRange(filePaths);
 
@@ -58,21 +58,31 @@ namespace derpibooruCSharpDownloader
 
         public void RateImage(int rating)
         {
+            var fileToMove = FilePaths[CurrentPicIndex];
+            var fileName = Path.GetFileName(fileToMove);
+
+
             var ratingFolder = Configuration.Instance.SaveLocation + string.Format("\\{0} Star", rating);
+            if (fileToMove.Contains("\\NSFW"))
+            {
+                ratingFolder = Configuration.Instance.SaveLocation + string.Format("\\NSFW\\{0} Star", rating);
+            }
 
             if(!Directory.Exists(ratingFolder))
                 Directory.CreateDirectory(ratingFolder);
 
-            var fileToMove = FilePaths[CurrentPicIndex];
-            var fileName = Path.GetFileName(fileToMove);
+            
 
             var destFile = ratingFolder + "\\" + fileName;
 
             Program.Form.offlinePicBox.Image.Dispose();
             FilePaths.RemoveAt(CurrentPicIndex);
-            Program.Form.offlinePicBox.Load(FilePaths[CurrentPicIndex]);
 
             File.Move(fileToMove, destFile);
+
+            Program.Form.offlinePicBox.Load(FilePaths[CurrentPicIndex]);
+
+            
 
 
 
